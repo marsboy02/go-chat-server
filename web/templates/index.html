@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Chat Server</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="chat-header">
+            <h1>💬 Go Chat Server</h1>
+            <div class="user-info">
+                <span id="user-count" class="user-count">0 users online</span>
+            </div>
+        </div>
+
+        <div class="join-form" id="joinForm">
+            <div class="join-container">
+                <h2>채팅방에 참여하세요</h2>
+                <input type="text" id="usernameInput" placeholder="사용자 이름을 입력하세요" maxlength="20">
+                <button id="joinBtn">참여하기</button>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer" style="display: none;">
+            <div class="messages-container">
+                <div id="messages" class="messages"></div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." maxlength="500">
+                    <button id="sendBtn" disabled>전송</button>
+                </div>
+                <div class="connection-status">
+                    <span id="connectionStatus" class="status-connected">연결됨</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>
