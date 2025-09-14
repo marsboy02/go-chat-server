@@ -4,6 +4,7 @@ class ChatClient {
         this.username = '';
         this.isConnected = false;
         this.userCount = 0;
+        this.shouldAutoScroll = true;
 
         // DOM elements
         this.joinForm = document.getElementById('joinForm');
@@ -35,6 +36,9 @@ class ChatClient {
         // Input validation
         this.usernameInput.addEventListener('input', () => this.validateJoinForm());
         this.messageInput.addEventListener('input', () => this.validateMessageForm());
+
+        // Scroll detection for auto-scroll behavior
+        this.setupScrollDetection();
     }
 
     validateJoinForm() {
@@ -164,7 +168,9 @@ class ChatClient {
         messageEl.appendChild(infoEl);
 
         this.messages.appendChild(messageEl);
-        this.scrollToBottom();
+
+        // Force scroll to bottom after adding message
+        setTimeout(() => this.scrollToBottom(), 10);
     }
 
     displaySystemMessage(message) {
@@ -177,7 +183,9 @@ class ChatClient {
 
         messageEl.appendChild(contentEl);
         this.messages.appendChild(messageEl);
-        this.scrollToBottom();
+
+        // Force scroll to bottom after adding message
+        setTimeout(() => this.scrollToBottom(), 10);
     }
 
     displayErrorMessage(message) {
@@ -191,7 +199,9 @@ class ChatClient {
 
         messageEl.appendChild(contentEl);
         this.messages.appendChild(messageEl);
-        this.scrollToBottom();
+
+        // Force scroll to bottom after adding message
+        setTimeout(() => this.scrollToBottom(), 10);
     }
 
     sendMessage() {
@@ -209,6 +219,9 @@ class ChatClient {
             this.ws.send(JSON.stringify(message));
             this.messageInput.value = '';
             this.validateMessageForm();
+
+            // Ensure auto-scroll when user sends a message
+            this.shouldAutoScroll = true;
         } catch (error) {
             console.error('Failed to send message:', error);
             this.handleConnectionError();
@@ -219,6 +232,15 @@ class ChatClient {
         this.joinForm.style.display = 'none';
         this.chatContainer.style.display = 'flex';
         this.messageInput.focus();
+
+        // Setup scroll detection after container is visible
+        if (this.scrollDetectionSetup) {
+            this.scrollDetectionSetup();
+        }
+
+        // Force scroll to bottom when chat starts
+        this.shouldAutoScroll = true;
+        setTimeout(() => this.scrollToBottom(), 100);
     }
 
     updateConnectionStatus(status) {
@@ -248,9 +270,39 @@ class ChatClient {
         this.validateMessageForm();
     }
 
+    setupScrollDetection() {
+        // This will be called after chat container is shown
+        this.scrollDetectionSetup = () => {
+            const messagesContainer = this.messages.parentElement;
+            if (messagesContainer) {
+                messagesContainer.addEventListener('scroll', () => {
+                    const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+                    // Check if user is near the bottom (within 50px)
+                    this.shouldAutoScroll = scrollTop + clientHeight >= scrollHeight - 50;
+                });
+            }
+        };
+    }
+
     scrollToBottom() {
         const messagesContainer = this.messages.parentElement;
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (!messagesContainer) return;
+
+        // Try multiple methods to ensure scrolling works
+        const scrollToEnd = () => {
+            // Method 1: scrollTop
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Method 2: scrollIntoView on last message
+            const lastMessage = this.messages.lastElementChild;
+            if (lastMessage) {
+                lastMessage.scrollIntoView({ behavior: 'instant', block: 'end' });
+            }
+        };
+
+        // Use both requestAnimationFrame and setTimeout for reliability
+        requestAnimationFrame(scrollToEnd);
+        setTimeout(scrollToEnd, 50);
     }
 
     formatTimestamp(timestamp) {
