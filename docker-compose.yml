@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  chat-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-chat-server:latest
+    container_name: go-chat-server
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - DEV_MODE=false
+      - TEMPLATE_DIR=web/templates
+      - STATIC_DIR=web/static
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - chat-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chat-server.rule=Host(`chat.localhost`)"
+      - "traefik.http.routers.chat-server.entrypoints=web"
+      - "traefik.http.services.chat-server.loadbalancer.server.port=8080"
+
+  # Optional: Add Traefik for reverse proxy (uncomment if needed)
+  # traefik:
+  #   image: traefik:v2.10
+  #   container_name: traefik
+  #   command:
+  #     - "--api.insecure=true"
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--entrypoints.web.address=:80"
+  #   ports:
+  #     - "80:80"
+  #     - "8080:8080"  # Traefik dashboard
+  #   volumes:
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #   networks:
+  #     - chat-network
+
+  # Optional: Add Redis for scaling (future enhancement)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - chat-network
+
+networks:
+  chat-network:
+    driver: bridge
+
+# volumes:
+#   redis-data:

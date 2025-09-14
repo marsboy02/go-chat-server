@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  chat-server-dev:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development
+    image: go-chat-server:dev
+    container_name: go-chat-server-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - DEV_MODE=true
+      - TEMPLATE_DIR=web/templates
+      - STATIC_DIR=web/static
+    volumes:
+      # Mount source code for live development
+      - ../web:/web:ro
+      - ../internal:/app/internal:ro
+      - ../cmd:/app/cmd:ro
+      - ../pkg:/app/pkg:ro
+    restart: unless-stopped
+    networks:
+      - chat-network-dev
+    command: ["go", "run", "./cmd/server"]
+    working_dir: /build
+
+  # Development Redis (optional)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: redis-dev
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-dev-data:/data
+    restart: unless-stopped
+    networks:
+      - chat-network-dev
+
+networks:
+  chat-network-dev:
+    driver: bridge
+
+volumes:
+  redis-dev-data:

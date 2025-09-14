@@ -61,9 +61,14 @@ go-chat-server/
 │   ├── hub/             # Connection hub (broadcast system)
 │   └── message/         # Message types and serialization
 ├── pkg/config/          # Configuration management
-└── web/                 # Frontend assets
-    ├── static/          # CSS, JavaScript files
-    └── templates/       # HTML templates
+├── web/                 # Frontend assets
+│   ├── static/          # CSS, JavaScript files
+│   └── templates/       # HTML templates
+└── docker/              # Docker configuration files
+    ├── .env.example     # Environment variables template
+    ├── docker-compose.dev.yml   # Development environment
+    ├── docker-compose.prod.yml  # Production environment
+    └── redis.conf       # Redis configuration
 ```
 
 ### Core Components
@@ -95,19 +100,93 @@ Environment variables:
 
 ## Running the Application
 
+### Local Development
 1. Start the server: `make run`
 2. Open browser to `http://localhost:8080`
 3. Enter a username and start chatting
 4. Open multiple tabs/browsers to test multi-user functionality
 
+### Docker Deployment
+
+#### Quick Start with Docker
+```bash
+# Build and run with Docker Compose
+make docker-up
+
+# View logs
+make docker-logs
+
+# Stop services
+make docker-down
+```
+
+#### Manual Docker Commands
+```bash
+# Build Docker image
+make docker-build
+
+# Run container
+make docker-run
+
+# Stop and clean up
+make docker-stop
+make docker-clean
+```
+
+#### Environment-Specific Deployments
+
+**Development Environment:**
+```bash
+# Start development environment with hot-reload
+make docker-dev-up
+
+# View development logs
+make docker-dev-logs
+
+# Stop development environment
+make docker-dev-down
+```
+
+**Production Environment:**
+```bash
+# Start production environment with Traefik and Redis
+make docker-prod-up
+
+# View production logs
+make docker-prod-logs
+
+# Stop production environment
+make docker-prod-down
+```
+
 ## Testing
 
 The project structure supports unit testing for each package. Run `make test` to execute all tests.
+
+## Docker Architecture
+
+### Container Features
+- **Multi-stage Build**: Optimized Docker image using Go builder and scratch base
+- **Security**: Non-root user execution with minimal attack surface
+- **Health Checks**: Built-in health monitoring for container orchestration
+- **Resource Limits**: Production-ready CPU and memory constraints
+
+### Available Environments
+- **Development**: Hot-reload development environment with source mounting
+- **Production**: Full production stack with Traefik reverse proxy and SSL
+- **Standalone**: Simple single-container deployment
+
+### Container Configuration
+- Port 8080 exposed for web server
+- Environment-based configuration
+- Volume mounts for development
+- Redis integration for scaling (optional)
 
 ## Dependencies
 
 - `github.com/gorilla/websocket`: WebSocket implementation
 - `github.com/gorilla/mux`: HTTP router (for potential future expansion)
+- Docker & Docker Compose for containerization
 
 ## Development Notes
 

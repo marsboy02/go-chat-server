@@ -137,12 +137,75 @@ build-all: build-linux build-windows build-mac
 .PHONY: docker-build
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t $(APP_NAME) .
+	docker build -t $(APP_NAME):latest .
 
 .PHONY: docker-run
 docker-run:
 	@echo "Running Docker container..."
-	docker run -p 8080:8080 $(APP_NAME)
+	docker run -p 8080:8080 --name $(APP_NAME) $(APP_NAME):latest
+
+.PHONY: docker-stop
+docker-stop:
+	@echo "Stopping Docker container..."
+	@docker stop $(APP_NAME) 2>/dev/null || true
+	@docker rm $(APP_NAME) 2>/dev/null || true
+
+.PHONY: docker-clean
+docker-clean:
+	@echo "Cleaning Docker images..."
+	@docker rmi $(APP_NAME):latest 2>/dev/null || true
+	@docker system prune -f
+
+# Docker Compose targets
+.PHONY: docker-up
+docker-up:
+	@echo "Starting services with Docker Compose..."
+	docker-compose up -d
+
+.PHONY: docker-down
+docker-down:
+	@echo "Stopping services with Docker Compose..."
+	docker-compose down
+
+.PHONY: docker-logs
+docker-logs:
+	@echo "Showing Docker Compose logs..."
+	docker-compose logs -f
+
+.PHONY: docker-restart
+docker-restart: docker-down docker-up
+
+# Development environment
+.PHONY: docker-dev-up
+docker-dev-up:
+	@echo "Starting development environment..."
+	docker-compose -f docker/docker-compose.dev.yml up -d
+
+.PHONY: docker-dev-down
+docker-dev-down:
+	@echo "Stopping development environment..."
+	docker-compose -f docker/docker-compose.dev.yml down
+
+.PHONY: docker-dev-logs
+docker-dev-logs:
+	@echo "Showing development logs..."
+	docker-compose -f docker/docker-compose.dev.yml logs -f
+
+# Production environment
+.PHONY: docker-prod-up
+docker-prod-up:
+	@echo "Starting production environment..."
+	docker-compose -f docker/docker-compose.prod.yml up -d
+
+.PHONY: docker-prod-down
+docker-prod-down:
+	@echo "Stopping production environment..."
+	docker-compose -f docker/docker-compose.prod.yml down
+
+.PHONY: docker-prod-logs
+docker-prod-logs:
+	@echo "Showing production logs..."
+	docker-compose -f docker/docker-compose.prod.yml logs -f
 
 # Help
 .PHONY: help
@@ -165,6 +228,23 @@ help:
 	@echo "  build-windows  Build for Windows"
 	@echo "  build-mac      Build for macOS"
 	@echo "  build-all      Build for all platforms"
+	@echo ""
+	@echo "Docker Commands:"
 	@echo "  docker-build   Build Docker image"
 	@echo "  docker-run     Run Docker container"
+	@echo "  docker-stop    Stop and remove Docker container"
+	@echo "  docker-clean   Clean Docker images and system"
+	@echo "  docker-up      Start services with docker-compose"
+	@echo "  docker-down    Stop services with docker-compose"
+	@echo "  docker-logs    Show docker-compose logs"
+	@echo "  docker-restart Restart docker-compose services"
+	@echo ""
+	@echo "Environment-specific Commands:"
+	@echo "  docker-dev-up     Start development environment"
+	@echo "  docker-dev-down   Stop development environment"
+	@echo "  docker-dev-logs   Show development logs"
+	@echo "  docker-prod-up    Start production environment"
+	@echo "  docker-prod-down  Stop production environment"
+	@echo "  docker-prod-logs  Show production logs"
+	@echo ""
 	@echo "  help           Show this help message"
