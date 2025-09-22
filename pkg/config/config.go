@@ -5,7 +5,6 @@ import (
 	"strconv"
 )
 
-// Config holds the application configuration
 type Config struct {
 	Port        string
 	Host        string
@@ -14,7 +13,6 @@ type Config struct {
 	DevMode     bool
 }
 
-// Load loads configuration from environment variables with defaults
 func Load() *Config {
 	return &Config{
 		Port:        getEnv("PORT", "8080"),
@@ -25,12 +23,10 @@ func Load() *Config {
 	}
 }
 
-// Address returns the full server address
 func (c *Config) Address() string {
 	return c.Host + ":" + c.Port
 }
 
-// getEnv gets an environment variable or returns a default value
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
@@ -38,7 +34,6 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
-// getEnvAsBool gets an environment variable as boolean or returns a default value
 func getEnvAsBool(key string, defaultValue bool) bool {
 	if value := os.Getenv(key); value != "" {
 		if b, err := strconv.ParseBool(value); err == nil {
