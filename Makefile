@@ -1,12 +1,8 @@
-# Go Chat Server Makefile
-
-# Variables
 APP_NAME := go-chat-server
 CMD_DIR := cmd/server
 BUILD_DIR := build
 BINARY := $(BUILD_DIR)/$(APP_NAME)
 
-# Go related variables
 GOCMD := go
 GOBUILD := $(GOCMD) build
 GOCLEAN := $(GOCMD) clean
@@ -16,15 +12,12 @@ GOMOD := $(GOCMD) mod
 GOFMT := $(GOCMD) fmt
 GOVET := $(GOCMD) vet
 
-# Build flags
 LDFLAGS := -ldflags "-w -s"
 BUILD_FLAGS := -v $(LDFLAGS)
 
-# Default target
 .PHONY: all
 all: clean build
 
-# Build the application
 .PHONY: build
 build:
 	@echo "Building $(APP_NAME)..."
@@ -32,25 +25,21 @@ build:
 	$(GOBUILD) $(BUILD_FLAGS) -o $(BINARY) ./$(CMD_DIR)
 	@echo "Build completed: $(BINARY)"
 
-# Run the application
 .PHONY: run
 run:
 	@echo "Starting $(APP_NAME)..."
 	$(GOCMD) run ./$(CMD_DIR)
 
-# Run with development mode
 .PHONY: dev
 dev:
 	@echo "Starting $(APP_NAME) in development mode..."
 	DEV_MODE=true $(GOCMD) run ./$(CMD_DIR)
 
-# Run tests
 .PHONY: test
 test:
 	@echo "Running tests..."
 	$(GOTEST) -v ./...
 
-# Run tests with coverage
 .PHONY: test-coverage
 test-coverage:
 	@echo "Running tests with coverage..."
@@ -58,19 +47,16 @@ test-coverage:
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 
-# Format code
 .PHONY: fmt
 fmt:
 	@echo "Formatting code..."
 	$(GOFMT) ./...
 
-# Vet code
 .PHONY: vet
 vet:
 	@echo "Vetting code..."
 	$(GOVET) ./...
 
-# Lint code (requires golangci-lint)
 .PHONY: lint
 lint:
 	@echo "Linting code..."
@@ -80,19 +66,16 @@ lint:
 		echo "golangci-lint not installed. Install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; \
 	fi
 
-# Tidy dependencies
 .PHONY: tidy
 tidy:
 	@echo "Tidying dependencies..."
 	$(GOMOD) tidy
 
-# Download dependencies
 .PHONY: deps
 deps:
 	@echo "Downloading dependencies..."
 	$(GOMOD) download
 
-# Clean build artifacts
 .PHONY: clean
 clean:
 	@echo "Cleaning..."
@@ -100,17 +83,14 @@ clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -f coverage.out coverage.html
 
-# Install the application
 .PHONY: install
 install:
 	@echo "Installing $(APP_NAME)..."
 	$(GOCMD) install ./$(CMD_DIR)
 
-# Check code quality
 .PHONY: check
 check: fmt vet lint test
 
-# Build for different platforms
 .PHONY: build-linux
 build-linux:
 	@echo "Building for Linux..."
@@ -129,11 +109,9 @@ build-mac:
 	@mkdir -p $(BUILD_DIR)
 	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(APP_NAME)-darwin-amd64 ./$(CMD_DIR)
 
-# Build for all platforms
 .PHONY: build-all
 build-all: build-linux build-windows build-mac
 
-# Docker related targets
 .PHONY: docker-build
 docker-build:
 	@echo "Building Docker image..."
@@ -156,7 +134,6 @@ docker-clean:
 	@docker rmi $(APP_NAME):latest 2>/dev/null || true
 	@docker system prune -f
 
-# Docker Compose targets
 .PHONY: docker-up
 docker-up:
 	@echo "Starting services with Docker Compose..."
@@ -175,7 +152,6 @@ docker-logs:
 .PHONY: docker-restart
 docker-restart: docker-down docker-up
 
-# Development environment
 .PHONY: docker-dev-up
 docker-dev-up:
 	@echo "Starting development environment..."
@@ -191,7 +167,6 @@ docker-dev-logs:
 	@echo "Showing development logs..."
 	docker-compose -f docker/docker-compose.dev.yml logs -f
 
-# Production environment
 .PHONY: docker-prod-up
 docker-prod-up:
 	@echo "Starting production environment..."
@@ -207,7 +182,6 @@ docker-prod-logs:
 	@echo "Showing production logs..."
 	docker-compose -f docker/docker-compose.prod.yml logs -f
 
-# Help
 .PHONY: help
 help:
 	@echo "Available targets:"
