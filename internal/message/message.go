@@ -5,21 +5,15 @@ import (
 	"time"
 )
 
-// MessageType represents the type of message
 type MessageType string
 
 const (
-	// MessageTypeChat represents a chat message
 	MessageTypeChat MessageType = "chat"
-	// MessageTypeJoin represents a user joining
 	MessageTypeJoin MessageType = "join"
-	// MessageTypeLeave represents a user leaving
 	MessageTypeLeave MessageType = "leave"
-	// MessageTypeError represents an error message
 	MessageTypeError MessageType = "error"
 )
 
-// Message represents a chat message
 type Message struct {
 	Type      MessageType `json:"type"`
 	Content   string      `json:"content"`
@@ -27,7 +21,6 @@ type Message struct {
 	Timestamp time.Time   `json:"timestamp"`
 }
 
-// NewChatMessage creates a new chat message
 func NewChatMessage(username, content string) *Message {
 	return &Message{
 		Type:      MessageTypeChat,
@@ -37,7 +30,6 @@ func NewChatMessage(username, content string) *Message {
 	}
 }
 
-// NewJoinMessage creates a new join message
 func NewJoinMessage(username string) *Message {
 	return &Message{
 		Type:      MessageTypeJoin,
@@ -47,7 +39,6 @@ func NewJoinMessage(username string) *Message {
 	}
 }
 
-// NewLeaveMessage creates a new leave message
 func NewLeaveMessage(username string) *Message {
 	return &Message{
 		Type:      MessageTypeLeave,
@@ -57,7 +48,6 @@ func NewLeaveMessage(username string) *Message {
 	}
 }
 
-// NewErrorMessage creates a new error message
 func NewErrorMessage(content string) *Message {
 	return &Message{
 		Type:      MessageTypeError,
@@ -67,12 +57,10 @@ func NewErrorMessage(content string) *Message {
 	}
 }
 
-// ToJSON converts the message to JSON bytes
 func (m *Message) ToJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-// FromJSON creates a message from JSON bytes
 func FromJSON(data []byte) (*Message, error) {
 	var msg Message
 	err := json.Unmarshal(data, &msg)
