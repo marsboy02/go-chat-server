@@ -7,13 +7,11 @@ import (
 	"path/filepath"
 )
 
-// StaticHandler handles static file serving and template rendering
 type StaticHandler struct {
 	templateDir string
 	staticDir   string
 }
 
-// NewStaticHandler creates a new static handler
 func NewStaticHandler(templateDir, staticDir string) *StaticHandler {
 	return &StaticHandler{
 		templateDir: templateDir,
@@ -21,7 +19,6 @@ func NewStaticHandler(templateDir, staticDir string) *StaticHandler {
 	}
 }
 
-// ServeHome serves the main chat page
 func (h *StaticHandler) ServeHome(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -33,7 +30,6 @@ func (h *StaticHandler) ServeHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse and execute template
 	tmplPath := filepath.Join(h.templateDir, "index.html")
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
@@ -50,7 +46,6 @@ func (h *StaticHandler) ServeHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ServeStatic serves static files (CSS, JS, images, etc.)
 func (h *StaticHandler) ServeStatic() http.Handler {
 	return http.StripPrefix("/static/", http.FileServer(http.Dir(h.staticDir)))
 }
